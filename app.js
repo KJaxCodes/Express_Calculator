@@ -27,9 +27,3 @@ app.get('/mean', function calcMean(req, res) {
     res.send('You wnat to find the mean!');
 });
 
-const greetings = {
-    en: 'hello',
-    fr: 'bonjour',
-    ic: 'hallo',
-    js: 'konnichiwa'
-}
