@@ -7,9 +7,11 @@ const app = express();
 // app.set('view engine', 'ejs');
 // not needed here
 
+const PORT = 3000;
+
 //listen for requests
-app.listen(3000, () => {
-    console.log('Server running on port 3000');
+app.listen(PORT, () => {
+    console.log('Server running on PORT: ${PORT}');
 });
 
 //define our routes
@@ -25,15 +27,30 @@ app.get('/', (req, res) => {
 
 //can use arrow functions, but sometimes you want to name the function:
 app.get('/mean', async (req, res) => {
+    //get the query
     const { nums } = req.query;
+
+    //check if empty
+    if (!nums) {
+        return res.status(400).json({
+            message: "Route GET /mean",
+            operation: "mean",
+            error: "Bad request, query param {nums} is required"
+        })
+    }
+
+    // split the nums into an array
     const numbers = nums.split(",");
+
+
+
     let sum = 0;
 
     for (const stringNum of numbers) {
         //convert from string to number
         const number = parseInt(stringNum);
         if (isNaN(number)) {
-            return res.json({
+            return res.status(400).json({
                 message: `Error: ${stringNum} is not a valid integer`,
             });
         }
@@ -43,49 +60,63 @@ app.get('/mean', async (req, res) => {
     const MEAN = sum / (numbers.length);
 
     res.json({
+        message: "Route GET /mean",
         operation: "MEAN",
         value: MEAN
     });
 });
 
-app.get('/median', async (req, res) => {
-    //get the string of numbers entered
+app.get("/median", async (req, res) => {
+    //get the query
     const { nums } = req.query;
-    console.log(nums);
-    //separate the string by commas
-    const stringNumbers = nums.split(",");
-    console.log(stringNumbers);
-    //create an empty array to hold each number
-    const numbersArr = [];
 
-    //fill the array and check all values are integers
-    for (const stringNum of stringNumbers) {
-        const number = parseInt(stringNum);
-        if (isNaN(number)) {
-            return res.json({
-                message: `Error: ${stringNum} is not a valid integer`,
+    //check if empty
+    if (!nums) {
+        return res.status(400).json({
+            message: "Route GET /mean",
+            operation: "mean",
+            error: "Bad request, query param {nums} is required"
+        })
+    }
+
+    //split the nums into an array, split at the comma
+    const splitValues = nums.split(",");
+    const numValues = [];
+
+    for (const val of splitValues) {
+        if (Number.isNaN(Number(val))) {
+            return res.status(400).json({
+                message: "Route GET /median",
+                operation: "median",
+                error: `Bad request, query param [${val}] is not a valid number`
             });
         }
-        numbersArr.push(number);
+        numValues.push(Number(val));
     }
-    console.log(numbersArr);
 
-    //sort numbers in the array
-    numbersArr.sort((a, b) => a - b);
-    const middleIndex = Math.floor(numbersArr.length / 2);
-    console.log(middleIndex);
+    //sort and calculate the median
 
-    //find the median, result depends on if array is odd or even number of values
-    let median;
-    if (numbersArr.length % 2 === 0) {
-        median = (numbersArr[middleIndex - 1] + numbersArr[middleIndex]) / 2;
+    numValues.sort((a, b) => a - b);
+
+    console.log(numValues);
+
+    //get middle of the array
+    const middle = Math.floor(numValues.length / 2)
+
+    console.log(middle);
+
+    let median = 0;
+
+    if (numValues.length % 2 === 0) {
+        median = (numValues[middle] + numValues[middle - 1]) / 2
     } else {
-        median = numbersArr[middleIndex];
+        median = numValues[middle];
     }
 
-    //displays answer in json
-    res.json({
-        operation: "MEDIAN",
+
+    return res.json({
+        message: "Route GET /median",
+        operation: "median",
         value: median
     });
 });
@@ -148,4 +179,3 @@ app.get('/mode', async (req, res) => {
     });
 });
 
-//delete views
