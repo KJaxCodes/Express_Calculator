@@ -121,61 +121,64 @@ app.get("/median", async (req, res) => {
     });
 });
 
-app.get('/mode', async (req, res) => {
-    //get the string of numbers entered
-    const { nums } = req.query;
-    console.log(nums);
-    //separate the string by commas
-    const stringNumbers = nums.split(",");
-    console.log(stringNumbers);
-    //create an empty array to hold each number
-    const numbersArr = [];
 
-    //fill the array and check all values are integers
-    for (const stringNum of stringNumbers) {
-        const number = parseInt(stringNum);
-        if (isNaN(number)) {
-            return res.json({
-                message: `Error: ${stringNum} is not a valid integer`,
-            });
-        }
-        numbersArr.push(number);
+//mode route
+app.get("/mode", async (req, res) => {
+    //get the query
+    const { nums } = req.query;
+
+    //check if empty
+    if (!nums) {
+        return res.status(400).json({
+            message: "Route GET /mean",
+            operation: "mean",
+            error: "Bad request, query param {nums} is required"
+        })
     }
 
-    console.log(numbersArr);
+    //split the nums into an array
+    const splitValues = nums.split(",");
+    const numValues = [];
 
-    // Object to store the frequency of each element
-    let mode = {};
+    // TODO: validate NaN
+    for (const val of splitValues) {
+        if (Number.isNaN(Number(val))) {
+            return res.status(400).json({
+                message: "Route GET /median",
+                operation: "median",
+                error: `Bad request, query param [${val}] is not a valid number`
+            });
+        }
+        numValues.push(Number(val));
+    }
 
-    // Variable to store the frequency of the current mode
-    let maxCount = 0;
+    //MODE OPERATIONS
+    let highestOccurrence = 0;
+    let numMap = {};
 
-    // Array to store the modes
-    let modes = [];
-
-    // Iterate through each element of the numbers array
-    numbersArr.forEach(function (e) {
-        if (mode[e] == null) {
-            mode[e] = 1;
+    for (const num of numValues) {
+        if (numMap[num]) {
+            numMap[num] += 1;
         } else {
-            mode[e]++;
+            numMap[num] = 1;
         }
-        if (mode[e] > maxCount) {
 
-            // Update the current mode and its frequency
-            modes = [e];
-            maxCount = mode[e];
-        } else if (mode[e] === maxCount) {
-            modes.push(e);
+        if (numMap[num] > highestOccurrence) {
+            highestOccurrence = numMap[num];
         }
-    });
-    return modes;
+    }
 
-    console.log(modes);
+    //grab mode
+    const mode = Object.keys(numMap).filter((key) => {
+        return numMap[key] === highestOccurrence;
+    })
 
-    res.json({
-        operation: "MODE",
-        value: modes
+
+    console.log(numMap, highestOccurrence);
+
+    return res.json({
+        message: "Route GET /mode",
+        operation: "mode",
+        value: mode
     });
 });
-
