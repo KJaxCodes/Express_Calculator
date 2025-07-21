@@ -9,6 +9,53 @@ const app = express();
 
 const PORT = 3000;
 
+// math helpers //
+const { calculateMean, calculateMedian, calculateMode } = require('./helpers');
+
+app.get('/all', async (req, res) => {
+    //get the query
+    const { nums } = req.query;
+
+    //check if empty
+    if (!nums) {
+        return res.status(400).json({
+            message: "Route GET /mean",
+            operation: "mean",
+            error: "Bad request, query param {nums} is required"
+        });
+    }
+    // split the nums into an array
+    const splitValues = nums.split(",");
+    const numValues = [];
+
+    //assume that we are getting correct input
+    //Input will be validated, if NaN send 400
+    for (const val of splitValues) {
+        if (Number.isNaN(Number(val))) {
+            return res.status(400).json({
+                message: "Route GET /all",
+                operation: "all",
+                error: `Bad request, query param [${val}] is not a valid number`
+            });
+        }
+        numValues.push(Number(val));
+    }
+
+    //calculate mean
+    const mean = calculateMean(numValues);
+    const median = calculateMedian(numValues);
+    const mode = calculateMode(numValues);
+
+    return res.status(200).json({
+        message: "Route GET /all",
+        operation: "all",
+        mean,
+        median,
+        mode,
+
+    });
+});
+
 //listen for requests
 app.listen(PORT, () => {
     console.log('Server running on PORT: ${PORT}');
@@ -36,7 +83,7 @@ app.get('/mean', async (req, res) => {
             message: "Route GET /mean",
             operation: "mean",
             error: "Bad request, query param {nums} is required"
-        })
+        });
     }
 
     // split the nums into an array
@@ -180,5 +227,29 @@ app.get("/mode", async (req, res) => {
         message: "Route GET /mode",
         operation: "mode",
         value: mode
+    });
+});
+
+//find the square root of a number
+app.get('/squareRoot', async (req, res) => {
+    //get the query
+    const num = parseFloat(req.query.num);
+    console.log(num);
+
+    //check if empty
+    if (!num) {
+        return res.status(400).json({
+            message: "Route GET /squareRoot",
+            operation: "squareRoot",
+            error: "Bad request, query param {num} is required"
+        });
+    }
+
+    const squareRoot = Math.sqrt(num);
+
+    res.json({
+        message: "Route GET /squareRoot",
+        operation: "squareRoot",
+        value: squareRoot
     });
 });
