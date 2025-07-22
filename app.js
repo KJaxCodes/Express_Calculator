@@ -245,11 +245,31 @@ app.get("/mode", async (req, res) => {
         saveToFile("mode", nums, mode);
     }
 
-    return res.status(200).json({
-        message: "Route GET /mode",
-        operation: "mode",
-        value: mode
-    });
+    console.log(req.headers);
+
+    const responseType = req.headers["accept"];
+
+    if (responseType === "text/html") {
+        return res.status(200).send(
+            `
+            <div>
+                <p>Operation : "MODE" </p>
+                <p>Value: ${mode} </p>
+                <p>Nums: ${nums} </p>
+            </div>
+            `
+        );
+    }
+
+    if (responseType === "application/json") {
+        return res.status(200).json({
+            message: "Route GET /mode",
+            operation: "mode",
+            value: mode
+        });
+    }
+
+    return res.status(400).send("Accept Header Missing");
 });
 
 //find the square root of a number

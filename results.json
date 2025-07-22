@@ -1,14 +1,12 @@
 {
  "savedOperations": [
   {
-   "operation": "median",
-   "nums": "2,4,6,8,10,12",
-   "value": 7
-  },
-  {
-   "operation": "mean",
-   "nums": "2,4,6,8,10,12",
-   "value": 7
+   "operation": "mode",
+   "nums": "1,1,1,2,2,3",
+   "value": [
+    "1"
+   ],
+   "createdAt": "2025-07-22T18:35:15.376Z"
   }
  ]
 }

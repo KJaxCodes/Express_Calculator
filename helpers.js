@@ -88,7 +88,7 @@ const saveToFile = (operation, nums, value) => {
         const results = fs.readFileSync("./results.json", { encoding: "utf-8" });
         const parsedResults = JSON.parse(results); //parse into a JS object
 
-        const dataObj = { operation: operation, nums: nums, value: value }; // new data object, incoming
+        const dataObj = { operation: operation, nums: nums, value: value, createdAt: new Date() }; // new data object, incoming
         parsedResults.savedOperations.push(dataObj); // push in the new data object
 
         const JSONString = JSON.stringify(parsedResults, null, 1); //stringify the update
@@ -97,7 +97,7 @@ const saveToFile = (operation, nums, value) => {
 
     } catch (error) {
         console.log("No results.json yet, creating")
-        const dataObj = { operation: operation, nums: nums, value: value }; // object
+        const dataObj = { operation: operation, nums: nums, value: value, createdAt: new Date() }; // object
         // const JSONString = JSON.stringify(dataObj, null, 1); // "{'operation': 'mean', 'value': '4.5', 'nums': '3,4,5,6,7' }"
 
 
