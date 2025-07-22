@@ -1,3 +1,5 @@
+const fs = require("fs");
+
 const express = require('express');
 
 //express app setup
@@ -10,7 +12,8 @@ const app = express();
 const PORT = 3000;
 
 // math helpers //
-const { calculateMean, calculateMedian, calculateMode } = require('./helpers');
+const { calculateMean, calculateMedian, calculateMode, saveToFile } = require('./helpers');
+const { parse } = require("path");
 
 app.get('/all', async (req, res) => {
     //get the query
@@ -56,26 +59,18 @@ app.get('/all', async (req, res) => {
     });
 });
 
-//listen for requests
-app.listen(PORT, () => {
-    console.log('Server running on PORT: ${PORT}');
-});
-
 //define our routes
 app.get('/', (req, res) => {
     console.log('This is home')
     res.json({ message: "hello" });
 });
 
-// Create 3 pages: Mean, Median, Mode
-// On each page, there is a form to input up to 10 numbers, error if the value entered is not a number, require at least 2 numbers
-// Calculate button takes the numbers entered and gives response
+// Create 3 operations: Mean, Median, Mode
 
-
-//can use arrow functions, but sometimes you want to name the function:
+//MEAN
 app.get('/mean', async (req, res) => {
     //get the query
-    const { nums } = req.query;
+    const { nums, save } = req.query;
 
     //check if empty
     if (!nums) {
@@ -106,7 +101,12 @@ app.get('/mean', async (req, res) => {
 
     const MEAN = sum / (numbers.length);
 
-    res.json({
+    // check if we need to save
+    if (save && save === "true") {
+        saveToFile("mean", nums, MEAN);
+    }
+
+    return res.status(200).json({
         message: "Route GET /mean",
         operation: "MEAN",
         value: MEAN
@@ -115,7 +115,7 @@ app.get('/mean', async (req, res) => {
 
 app.get("/median", async (req, res) => {
     //get the query
-    const { nums } = req.query;
+    const { nums, save } = req.query;
 
     //check if empty
     if (!nums) {
@@ -160,8 +160,19 @@ app.get("/median", async (req, res) => {
         median = numValues[middle];
     }
 
+    if (save && save === "true") {
+        const dataObj = { operation: "median", nums: nums, value: median };
+        const JSONString = JSON.stringify(dataObj, null, 1);
+        fs.writeFileSync("./results.json", JSONString);
+    }
 
-    return res.json({
+    // check if we need to save
+    if (save && save === "true") {
+        saveToFile("median", nums, median);
+    }
+
+
+    return res.status(200).json({
         message: "Route GET /median",
         operation: "median",
         value: median
@@ -172,7 +183,7 @@ app.get("/median", async (req, res) => {
 //mode route
 app.get("/mode", async (req, res) => {
     //get the query
-    const { nums } = req.query;
+    const { nums, save } = req.query;
 
     //check if empty
     if (!nums) {
@@ -223,7 +234,18 @@ app.get("/mode", async (req, res) => {
 
     console.log(numMap, highestOccurrence);
 
-    return res.json({
+    if (save && save === "true") {
+        const dataObj = { operation: "mode", nums: nums, value: mode };
+        const JSONString = JSON.stringify(dataObj, null, 1);
+        fs.writeFileSync("./results.json", JSONString);
+    }
+
+    // check if we need to save
+    if (save && save === "true") {
+        saveToFile("mode", nums, mode);
+    }
+
+    return res.status(200).json({
         message: "Route GET /mode",
         operation: "mode",
         value: mode
@@ -252,4 +274,9 @@ app.get('/squareRoot', async (req, res) => {
         operation: "squareRoot",
         value: squareRoot
     });
+});
+
+//listen for requests
+app.listen(PORT, () => {
+    console.log(`Server running on PORT: ${PORT}`);
 });

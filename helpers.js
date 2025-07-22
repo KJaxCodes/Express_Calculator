@@ -1,3 +1,5 @@
+const fs = require("fs");
+
 /**
  * Calculates the mean
  * @param {Array} dataArr - Array of numbers
@@ -73,8 +75,44 @@ const calculateMode = (dataArr) => {
 
 };
 
+/**
+ * will write to file if save === "true"
+ * @param {string} save 
+ * @param {string} operation 
+ * @param {number} value 
+ * @param {array} nums
+ */
+const saveToFile = (operation, nums, value) => {
+    //first read and check if file exists
+    try {
+        const results = fs.readFileSync("./results.json", { encoding: "utf-8" });
+        const parsedResults = JSON.parse(results); //parse into a JS object
+
+        const dataObj = { operation: operation, nums: nums, value: value }; // new data object, incoming
+        parsedResults.savedOperations.push(dataObj); // push in the new data object
+
+        const JSONString = JSON.stringify(parsedResults, null, 1); //stringify the update
+
+        fs.writeFileSync("./results.json", JSONString); //write to the file
+
+    } catch (error) {
+        console.log("No results.json yet, creating")
+        const dataObj = { operation: operation, nums: nums, value: value }; // object
+        // const JSONString = JSON.stringify(dataObj, null, 1); // "{'operation': 'mean', 'value': '4.5', 'nums': '3,4,5,6,7' }"
+
+
+        const results = {
+            savedOperations: [dataObj]
+        };
+        const JSONString = JSON.stringify(results, null, 1);
+        fs.writeFileSync("./results.json", JSONString);
+    }
+}
+
+
 module.exports = {
     calculateMean,
     calculateMedian,
-    calculateMode
+    calculateMode,
+    saveToFile
 };
